@@ -6,5 +6,11 @@
 		{
 			"path": "broker-service"
 		},
+        {
+            "path": "authentication-service"
+        },
+        {
+			"path": "project"
+		},
 	]
 }

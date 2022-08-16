@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  broker-service:
+    build: ./../broker-service
+    restart: always
+    ports:
+      - "8080:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  authentication-service:
+    build: ./../authentication-service
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: "postgres://postgres:paSSword@postgres:5432/authentication_service"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  postgres:
+    image: 'postgres:14.2'
+    ports:
+      - "5432:5432"
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: paSSword
+      POSTGRES_DB: authentication_service
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgres/data
+
