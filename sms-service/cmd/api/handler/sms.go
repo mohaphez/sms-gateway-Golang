@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type SendSmsResponse struct {
@@ -30,7 +31,7 @@ type SendSmsResponse struct {
 
 func SendSMS(w http.ResponseWriter, r *http.Request) {
 	mobileRegex, _ := regexp.Compile(`^(?:98|\+98|0098|0)?9[0-9]{9}$`)
-	var SMSRow data.SendSMS
+	var SMSArray []data.SendSMS
 	var responsePayload []SendSmsResponse
 	var requestPayload struct {
 		Message      string   `json:"message"`
@@ -67,7 +68,7 @@ func SendSMS(w http.ResponseWriter, r *http.Request) {
 
 	for _, receptor := range requestPayload.Receptor {
 		if mobileRegex.MatchString(receptor) {
-			SMSRow = data.SendSMS{
+			SMSRow := data.SendSMS{
 				Sender:       requestPayload.Sender,
 				SenderNumber: requestPayload.SenderNumber,
 				Receptor:     receptor,
@@ -84,14 +85,14 @@ func SendSMS(w http.ResponseWriter, r *http.Request) {
 				UpdatedAt:    time.Now(),
 			}
 			// Save the message in to database
-			messageid, smsData, err := app.Models.SendSMS.Insert(SMSRow)
+			messageid, _, err := app.Models.SendSMS.Insert(SMSRow)
 			if err != nil {
 				log.Println("Can't be store Message in database")
 				continue
 			}
-
-			// Send message with oprator
-			provider.RahyabSendSms(messageid, smsData)
+			// Add SMS to array for provider
+			SMSRow.ID = messageid.InsertedID.(primitive.ObjectID)
+			SMSArray = append(SMSArray, SMSRow)
 			// Add the message info to response payload
 			responsePayload = append(responsePayload, SendSmsResponse{
 				Sender:       SMSRow.Sender,
@@ -110,6 +111,8 @@ func SendSMS(w http.ResponseWriter, r *http.Request) {
 			log.Printf("mobile number is not valid ! mobile : %v", receptor)
 		}
 	}
+	// Send message with oprator
+	provider.RahyabSendSms(SMSArray)
 
 	log.Printf("All Messages sent successfully !")
 
@@ -124,8 +127,9 @@ func SendSMS(w http.ResponseWriter, r *http.Request) {
 }
 
 func SendSMSArray(w http.ResponseWriter, r *http.Request) {
+	var localId string
 	mobileRegex, _ := regexp.Compile(`^(?:98|\+98|0098|0)?9[0-9]{9}$`)
-	var SMSRow data.SendSMS
+	var SMSArray []data.SendSMS
 	var responsePayload []SendSmsResponse
 	var requestPayload struct {
 		Message      []string `json:"message"`
@@ -166,13 +170,19 @@ func SendSMSArray(w http.ResponseWriter, r *http.Request) {
 			log.Println("message length is too high")
 			continue
 		}
+
 		if mobileRegex.MatchString(receptor) {
-			SMSRow = data.SendSMS{
+			if len(requestPayload.LocalId) > 0 {
+				localId = requestPayload.LocalId[index]
+			} else {
+				localId = ""
+			}
+			SMSRow := data.SendSMS{
 				Sender:       requestPayload.Sender,
 				SenderNumber: requestPayload.SenderNumber,
 				Receptor:     receptor,
 				BatchId:      uuid.NewString(),
-				LocalId:      requestPayload.LocalId[index],
+				LocalId:      localId,
 				SendType:     1,
 				SmsCount:     int(smsCount),
 				Lang:         smsLanguage,
@@ -184,11 +194,16 @@ func SendSMSArray(w http.ResponseWriter, r *http.Request) {
 				UpdatedAt:    time.Now(),
 			}
 			// Save the message in to database
-			_, _, err := app.Models.SendSMS.Insert(SMSRow)
+			id, _, err := app.Models.SendSMS.Insert(SMSRow)
+
 			if err != nil {
 				log.Println("Can't be store Message in database")
 				continue
 			}
+			// Add SMS to array for provider
+			SMSRow.ID = id.InsertedID.(primitive.ObjectID)
+			SMSArray = append(SMSArray, SMSRow)
+
 			// Add the message info to response payload
 			responsePayload = append(responsePayload, SendSmsResponse{
 				Sender:       SMSRow.Sender,
@@ -208,6 +223,8 @@ func SendSMSArray(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Send message with oprator
+	provider.RahyabSendSMSArray(SMSArray)
 	log.Printf("All Messages sent successfully !")
 
 	res := utils.JsonResponse{

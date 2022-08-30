@@ -29,6 +29,6 @@ func (app *Config) routes() http.Handler {
 	// routes list ......
 	mux.Get("/", handler.Welcome)
 	mux.Post("/send-sms", handler.SendSMS)
-
+	mux.Post("/send-sms-p2p", handler.SendSMSArray)
 	return mux
 }
