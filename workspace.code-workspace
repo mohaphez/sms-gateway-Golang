@@ -12,5 +12,8 @@
         {
 			"path": "project"
 		},
+        {
+            "path": "sms-service"
+        }
 	]
 }

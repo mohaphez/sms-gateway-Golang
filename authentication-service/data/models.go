@@ -15,6 +15,7 @@ var db *pgxpool.Pool
 
 func New(dbpool *pgxpool.Pool) Models {
 	db = dbpool
+	createTables()
 	return Models{
 		User: User{},
 	}
@@ -22,4 +23,8 @@ func New(dbpool *pgxpool.Pool) Models {
 
 type Models struct {
 	User User
+}
+
+func createTables() {
+	createUserstable()
 }

@@ -6,10 +6,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/jwtauth/v5"
 )
 
-func (app *Config) routes() http.Handler {
+var tokenAuth *jwtauth.JWTAuth
 
+func init() {
+	tokenAuth = jwtauth.New("HS256", []byte("sms-jwt-secret"), nil)
+}
+
+func (app *Config) routes() http.Handler {
 	mux := chi.NewRouter()
 
 	// Set cors options for who is allowed to connect
@@ -24,8 +30,18 @@ func (app *Config) routes() http.Handler {
 	// routes middleware
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	// routes list ......
-	mux.Get("/", app.Broker)
+	// Protected routes
+	mux.Group(func(mux chi.Router) {
+		mux.Use(jwtauth.Verifier(tokenAuth))
+		mux.Use(jwtauth.Authenticator)
+
+	})
+
+	// Public routes
+	mux.Group(func(mux chi.Router) {
+		mux.Get("/", app.Broker)
+		mux.Post("/getToken", app.getToken)
+	})
 
 	return mux
 }

@@ -1,5 +1,6 @@
 BROKER_BINARY=brokerApp
 AUTHENTICATION_BINERY=authApp
+SMS_BINERY=smsApp
 
 ## up: starts all containers in the background without forcing build
 up:
@@ -8,7 +9,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_broker build_auth
+up_build: build_broker build_auth build_sms
 	@echo "Stopping docker images (if running...)"
 	docker-compose down
 	@echo "Building (when required) and starting docker images..."
@@ -31,4 +32,10 @@ build_broker:
 build_auth:
 	@echo "Building authentication binary..."
 	cd ../authentication-service/cmd/api && env GOOS=linux CGO_ENABLED=0 go build -o ../../${AUTHENTICATION_BINERY}
+	@echo "Done!"
+
+## build_sms: builds the sms binary as a linux executable
+build_sms:
+	@echo "Building sms binary..."
+	cd ../sms-service/cmd/api && env GOOS=linux CGO_ENABLED=0 go build -o ../../${SMS_BINERY}
 	@echo "Done!"

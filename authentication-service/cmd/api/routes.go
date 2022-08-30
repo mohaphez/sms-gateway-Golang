@@ -28,7 +28,7 @@ func (app *Config) routes() http.Handler {
 
 	// routes list ......
 	mux.Get("/", handler.Welcome)
-	mux.Post("/token", handler.Authentication)
+	mux.Post("/verify-user", handler.Authentication)
 	mux.Post("/create-user", handler.Createuser)
 
 	return mux

@@ -21,6 +21,19 @@ services:
       mode: replicated
       replicas: 1
 
+  sms-service:
+    build:
+      context: ./../sms-service
+    ports:
+      - "8082:80"
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MOGODB_USERNAME: admin
+      MONGODB_PASSWORD: password
+
   postgres:
     image: 'postgres:14.2'
     ports:
@@ -34,5 +47,15 @@ services:
       POSTGRES_PASSWORD: paSSword
       POSTGRES_DB: authentication_service
     volumes:
-      - ./db-data/postgres/:/var/lib/postgres/data
+      - ./db-data/postgres/:/var/lib/postgresql/data
 
+  mongo:
+    image: 'mongo:latest'
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: sms-service
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./db-data/mongo/:/data/db
