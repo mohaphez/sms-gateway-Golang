@@ -18,4 +18,4 @@ authApp
 brokerApp
 smsApp
 project/db-data
-
+sms-service/cmd/api/config.json

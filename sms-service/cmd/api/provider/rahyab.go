@@ -12,21 +12,32 @@ import (
 )
 
 type Credential struct {
-	Token string
+	Token    string
+	Username string
+	Password string
+	Company  string
 }
 
-var RahyabToken Credential
+var RahyabCredential = Credential{
+	Token:    "",
+	Username: "",
+	Password: "",
+	Company:  "",
+}
 
 func RahyabGetToken() error {
-	requestPayload := `{
-		"Username": "",
-		"Password": "",
-		"Company":  ""
-	}`
-	url := "https://api.rahyab.ir/api/Auth/getToken"
+	requestPayload := fmt.Sprintf(`{
+		"Username": "%s@%s",
+		"Password": "%s",
+		"Company":  "%s"
+	}`, ProviderConfig.Providers.Rahyab.Username, ProviderConfig.Providers.Rahyab.Company, ProviderConfig.Providers.Rahyab.Password, ProviderConfig.Providers.Rahyab.Company)
+	url := ProviderConfig.Providers.Rahyab.BaseUrl + "/Auth/getToken"
 	res, statusCode := utils.SendPostRequest(url, requestPayload, "")
 	if statusCode == http.StatusOK {
-		RahyabToken.Token = res
+		RahyabCredential.Token = res
+		RahyabCredential.Username = ProviderConfig.Providers.Rahyab.Username
+		RahyabCredential.Password = ProviderConfig.Providers.Rahyab.Password
+		RahyabCredential.Company = ProviderConfig.Providers.Rahyab.Company
 	}
 	time.AfterFunc(24*time.Hour, func() { RahyabGetToken() })
 	return nil
@@ -53,21 +64,20 @@ func RahyabSendSms(messages []data.SendSMS) error {
 		"message": "%s",
 	    "destinationAddress":[%v],
 	    "number": "%s",
-		"userName": "",
-		"password": "",
-		"company":  ""
-	}`, messages[0].Message, strings.Join(destNumbersList, ","), messages[0].SenderNumber)
+		"userName": "%s",
+		"password": "%s",
+		"company":  "%s"
+	}`, messages[0].Message, strings.Join(destNumbersList, ","), messages[0].SenderNumber, RahyabCredential.Username, RahyabCredential.Password, RahyabCredential.Company)
 
 	// Check and fill token if it's empty
-	if RahyabToken.Token == "" {
+	if RahyabCredential.Token == "" {
 		RahyabGetToken()
 	}
 
 	// send sms for rahyab provider .
 
-	url := "https://api.rahyab.ir/api/v1/SendSMS_Batch"
-	res, statusCode := utils.SendPostRequest(url, requestPayload, RahyabToken.Token)
-	log.Println(res)
+	url := ProviderConfig.Providers.Rahyab.BaseUrl + "v1/SendSMS_Batch"
+	res, statusCode := utils.SendPostRequest(url, requestPayload, RahyabCredential.Token)
 	var responseJson []responsePayload
 
 	// Check response status
@@ -121,28 +131,28 @@ func RahyabSendSMSArray(messages []data.SendSMS) error {
 	requestPayload := fmt.Sprintf(`{
 		"listLikeToLikeMessage": [%v],
 	    "number": "%s",
-		"userName": "",
-		"password": "",
-		"company":  ""
-	}`, strings.Join(LikeToLikeMessageList, ","), messages[0].SenderNumber)
+		"userName": "%s",
+		"password": "%s",
+		"company":  "%s"
+	}`, strings.Join(LikeToLikeMessageList, ","), messages[0].SenderNumber, RahyabCredential.Username, RahyabCredential.Password, RahyabCredential.Company)
 
 	// Check and fill token if it's empty
-	if RahyabToken.Token == "" {
+	if RahyabCredential.Token == "" {
 		RahyabGetToken()
 	}
 
 	// send sms for rahyab provider .
 
-	url := "https://api.rahyab.ir/api/v1/SendSMS_LikeToLike"
-	res, statusCode := utils.SendPostRequest(url, requestPayload, RahyabToken.Token)
-	log.Println(res)
+	url := ProviderConfig.Providers.Rahyab.BaseUrl + "v1/SendSMS_LikeToLike"
+	res, statusCode := utils.SendPostRequest(url, requestPayload, RahyabCredential.Token)
 	var responseJson []responsePayload
-
 	if statusCode == http.StatusOK {
 		err := json.Unmarshal([]byte(res), &responseJson)
 		if err != nil {
-			panic(err)
+			log.Println(err)
+			return nil
 		}
+
 		for _, sms := range messages {
 			// check provider response and update sms status .
 			if len(responseJson[0].Status) == 0 {

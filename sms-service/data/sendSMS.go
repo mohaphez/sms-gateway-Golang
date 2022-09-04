@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"log"
+	"sms-service/cmd/api/utils"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -40,7 +41,7 @@ func (s *SendSMS) Insert(sms SendSMS) (*mongo.InsertOneResult, SendSMS, error) {
 	messageid, err := collection.InsertOne(context.TODO(), SendSMS{
 		Sender:         sms.Sender,
 		SenderNumber:   sms.SenderNumber,
-		Receptor:       sms.Receptor,
+		Receptor:       utils.TrimLastChars(sms.Receptor, 10),
 		SendType:       sms.SendType,
 		SmsCount:       sms.SmsCount,
 		Message:        sms.Message,
@@ -73,7 +74,7 @@ func (s *SendSMS) Update(id interface{}, sms SendSMS) error {
 		"$set": bson.M{
 			"sender":          sms.Sender,
 			"sender_number":   sms.SenderNumber,
-			"receptor":        sms.Receptor,
+			"receptor":        utils.TrimLastChars(sms.Receptor, 10),
 			"send_type":       sms.SendType,
 			"sms_count":       sms.SmsCount,
 			"message":         sms.Message,

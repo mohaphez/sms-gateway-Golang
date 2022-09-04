@@ -111,8 +111,22 @@ func SendSMS(w http.ResponseWriter, r *http.Request) {
 			log.Printf("mobile number is not valid ! mobile : %v", receptor)
 		}
 	}
+
 	// Send message with oprator
-	provider.RahyabSendSms(SMSArray)
+	switch SMSArray[0].Sender {
+	case "rahyab":
+		provider.RahyabSendSms(SMSArray)
+	case "rahyabPG":
+		provider.PGSendSms(SMSArray)
+	case "kavenegar":
+		provider.KVSendSms(SMSArray)
+	case "hamyarsms":
+		provider.HamyarSMSSendSms(SMSArray)
+	default:
+		utils.ErrorJSON(w, errors.New("sender is not valid ! "), http.StatusBadRequest)
+	}
+
+	// Return Response for client
 
 	log.Printf("All Messages sent successfully !")
 
@@ -224,7 +238,20 @@ func SendSMSArray(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send message with oprator
-	provider.RahyabSendSMSArray(SMSArray)
+	switch SMSArray[0].Sender {
+	case "rahyab":
+		provider.RahyabSendSMSArray(SMSArray)
+	case "rahyabPG":
+		provider.PGSendSMSArray(SMSArray)
+	case "kavenegar":
+		provider.KVSendSMSArray(SMSArray)
+	case "hamyarsms":
+		provider.HamyarSMSSendSmsArray(SMSArray)
+	default:
+		utils.ErrorJSON(w, errors.New("sender is not valid ! "), http.StatusBadRequest)
+	}
+
+	// Return Response for client
 	log.Printf("All Messages sent successfully !")
 
 	res := utils.JsonResponse{

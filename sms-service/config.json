@@ -1,0 +1,24 @@
+{
+    "Providers": {
+        "Rahyab": {
+            "Username": "",
+            "Password": "",
+            "Company": "",
+            "BaseUrl": "https://api.rahyab.ir/api/"
+        },
+        "PG": {
+            "Username": "",
+            "Password": "",
+            "BaseUrl": "http://p.1000sms.ir/Post/Send.asmx?wsdl"
+        },
+        "Kavenegar": {
+            "ApiKey": "",
+            "BaseUrl": "https://api.kavenegar.com/v1/"
+        },
+        "HamyarSMS": {
+            "Username": "",
+            "Password": "",
+            "BaseUrl": "http://payamakapi.ir/SendService.svc?singleWsdl"
+        }
+    }
+}

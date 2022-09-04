@@ -62,6 +62,8 @@ func StatusText(id int16) string {
 		return "پیامک توسط سرور دریافت نشده است (ریزش)"
 	case 10:
 		return "رسیده به گیرنده"
+	case 11:
+		return "ارسال ناموفق (کد خطا اپراتور را بررسی کنید)"
 	case 100:
 		return "شناسه پیامک نامعتبر است"
 	default:

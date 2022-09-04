@@ -25,6 +25,7 @@ type Config struct {
 }
 
 func main() {
+
 	// Connect to db .
 	conn, err := connectToDB()
 	if err != nil {
