@@ -30,5 +30,7 @@ func (app *Config) routes() http.Handler {
 	mux.Get("/", handler.Welcome)
 	mux.Post("/send-sms", handler.SendSMS)
 	mux.Post("/send-sms-p2p", handler.SendSMSArray)
+	mux.Post("/get-sms-status", handler.SmsStatus)
+	mux.Post("/get-sms-list", handler.SmsList)
 	return mux
 }

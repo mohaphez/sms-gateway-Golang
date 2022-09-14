@@ -79,7 +79,12 @@ func RahyabSendSms(messages []data.SendSMS) error {
 	url := ProviderConfig.Providers.Rahyab.BaseUrl + "v1/SendSMS_Batch"
 	res, statusCode := utils.SendPostRequest(url, requestPayload, RahyabCredential.Token)
 	var responseJson []responsePayload
-
+	// Resend if request have connection error
+	if res == "" && statusCode == 502 {
+		time.Sleep(5 * time.Second)
+		go RahyabSendSms(messages)
+		return nil
+	}
 	// Check response status
 	if statusCode == http.StatusOK {
 		err := json.Unmarshal([]byte(res), &responseJson)
@@ -146,6 +151,13 @@ func RahyabSendSMSArray(messages []data.SendSMS) error {
 	url := ProviderConfig.Providers.Rahyab.BaseUrl + "v1/SendSMS_LikeToLike"
 	res, statusCode := utils.SendPostRequest(url, requestPayload, RahyabCredential.Token)
 	var responseJson []responsePayload
+	// Resend if request have connection error
+	if res == "" && statusCode == 502 {
+		time.Sleep(5 * time.Second)
+		go RahyabSendSMSArray(messages)
+		return nil
+	}
+
 	if statusCode == http.StatusOK {
 		err := json.Unmarshal([]byte(res), &responseJson)
 		if err != nil {

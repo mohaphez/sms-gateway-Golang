@@ -108,7 +108,8 @@ func SendPostRequest(url string, data string, token string) (string, int) {
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return "", 502
 	}
 	defer resp.Body.Close()
 
@@ -134,7 +135,8 @@ func SendPostFormRequest(apiurl string, data map[string]string, token string) (s
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return "", 502
 	}
 	defer resp.Body.Close()
 

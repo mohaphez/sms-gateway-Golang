@@ -46,7 +46,8 @@ func HamyarSMSSendSoap(url string, method string, username string, password stri
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return []byte{52}, err
 	}
 	defer resp.Body.Close()
 	if err != nil {
@@ -62,8 +63,13 @@ func HamyarSMSSendSms(messages []data.SendSMS) error {
 
 	// send sms for PGrahyab provider .
 	for _, sms := range messages {
-		log.Println(ProviderConfig.Providers.HamyarSMS.BaseUrl)
 		res, err := HamyarSMSSendSoap(ProviderConfig.Providers.HamyarSMS.BaseUrl, "SendSMS", ProviderConfig.Providers.HamyarSMS.Username, ProviderConfig.Providers.HamyarSMS.Password, []string{sms.Receptor}, messages[0].SenderNumber, messages[0].Message, false, "", []int64{0})
+		// Resend if request have connection error
+		if err != nil && res[0] == 52 {
+			time.Sleep(5 * time.Second)
+			go HamyarSMSSendSms(messages)
+			return nil
+		}
 		if err != nil {
 			log.Println(err.Error())
 			return err
@@ -85,7 +91,7 @@ func HamyarSMSSendSms(messages []data.SendSMS) error {
 			sms.SendTime = time.Now()
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
-		} else {
+		} else if len(sendSmsResult) > 0 {
 			sms.Status = 11
 			sms.StatusText = utils.StatusText(int16(sms.Status))
 			sms.Error = sendSmsResult[0]
@@ -102,6 +108,12 @@ func HamyarSMSSendSmsArray(messages []data.SendSMS) error {
 	// send sms for PGrahyab provider .
 	for _, sms := range messages {
 		res, err := HamyarSMSSendSoap(ProviderConfig.Providers.HamyarSMS.BaseUrl, "SendSMS", ProviderConfig.Providers.HamyarSMS.Username, ProviderConfig.Providers.HamyarSMS.Password, []string{sms.Receptor}, messages[0].SenderNumber, sms.Message, false, "", []int64{0})
+		// Resend if request have connection error
+		if err != nil && res[0] == 52 {
+			time.Sleep(5 * time.Second)
+			go HamyarSMSSendSmsArray(messages)
+			return nil
+		}
 		if err != nil {
 			log.Println(err.Error())
 			return err
@@ -123,7 +135,7 @@ func HamyarSMSSendSmsArray(messages []data.SendSMS) error {
 			sms.SendTime = time.Now()
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
-		} else {
+		} else if len(sendSmsResult) > 0 {
 			sms.Status = 11
 			sms.StatusText = utils.StatusText(int16(sms.Status))
 			sms.Error = sendSmsResult[0]

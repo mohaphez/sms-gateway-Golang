@@ -115,13 +115,13 @@ func SendSMS(w http.ResponseWriter, r *http.Request) {
 	// Send message with oprator
 	switch SMSArray[0].Sender {
 	case "rahyab":
-		provider.RahyabSendSms(SMSArray)
+		go provider.RahyabSendSms(SMSArray)
 	case "rahyabPG":
-		provider.PGSendSms(SMSArray)
+		go provider.PGSendSms(SMSArray)
 	case "kavenegar":
-		provider.KVSendSms(SMSArray)
+		go provider.KVSendSms(SMSArray)
 	case "hamyarsms":
-		provider.HamyarSMSSendSms(SMSArray)
+		go provider.HamyarSMSSendSms(SMSArray)
 	default:
 		utils.ErrorJSON(w, errors.New("sender is not valid ! "), http.StatusBadRequest)
 	}
@@ -240,13 +240,13 @@ func SendSMSArray(w http.ResponseWriter, r *http.Request) {
 	// Send message with oprator
 	switch SMSArray[0].Sender {
 	case "rahyab":
-		provider.RahyabSendSMSArray(SMSArray)
+		go provider.RahyabSendSMSArray(SMSArray)
 	case "rahyabPG":
-		provider.PGSendSMSArray(SMSArray)
+		go provider.PGSendSMSArray(SMSArray)
 	case "kavenegar":
-		provider.KVSendSMSArray(SMSArray)
+		go provider.KVSendSMSArray(SMSArray)
 	case "hamyarsms":
-		provider.HamyarSMSSendSmsArray(SMSArray)
+		go provider.HamyarSMSSendSmsArray(SMSArray)
 	default:
 		utils.ErrorJSON(w, errors.New("sender is not valid ! "), http.StatusBadRequest)
 	}
@@ -262,4 +262,76 @@ func SendSMSArray(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusAccepted, res)
 
+}
+
+func SmsStatus(w http.ResponseWriter, r *http.Request) {
+	var requestPayload struct {
+		Batchid []string `json:"batchid"`
+	}
+	// Check the request payload
+	err := utils.ReadJSON(w, r, &requestPayload)
+	if err != nil {
+		utils.ErrorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// Check the request payload are not null
+	if len(requestPayload.Batchid) == 0 {
+		utils.ErrorJSON(w, errors.New("invalid parameter ! parameters could not be null"), http.StatusBadRequest)
+		return
+	}
+
+	messages, err := data.GetByBatchId(requestPayload.Batchid)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	res := utils.JsonResponse{
+		Error:   false,
+		Message: "All Messages sent successfully !",
+		Data:    messages,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, res)
+}
+
+func SmsList(w http.ResponseWriter, r *http.Request) {
+	var requestPayload struct {
+		Message      string   `json:"message"`
+		Receptor     []string `json:"receptor"`
+		Sender       []string `json:"sender"`
+		SenderNumber []string `json:"senderNumber"`
+		Offset       int64    `json:"offset"`
+		Limit        int64    `json:"limit"`
+		Sort         string   `json:"sort"`
+	}
+	// Check the request payload
+	err := utils.ReadJSON(w, r, &requestPayload)
+	if err != nil {
+		utils.ErrorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	// Check the request payload are not null
+	if requestPayload.Limit > 500 {
+		utils.ErrorJSON(w, errors.New("invalid parameter ! limit parameter must be less than 500"), http.StatusBadRequest)
+		return
+	}
+
+	messages, err := data.GetByFilter(requestPayload.Message, requestPayload.Receptor, requestPayload.Sender, requestPayload.SenderNumber, requestPayload.Limit, requestPayload.Offset, requestPayload.Sort)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	res := utils.JsonResponse{
+		Error:   false,
+		Message: "All Messages sent successfully !",
+		Data:    messages,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, res)
 }
