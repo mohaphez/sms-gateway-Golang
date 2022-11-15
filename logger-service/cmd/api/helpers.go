@@ -1,26 +1,17 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 )
 
 type jsonResponse struct {
-	Error   bool   `json:"error"`
+	Error bool `json:"error"`
 	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
+	Data any `json:"data,omitempty"`
 }
-
-type LogPayload struct {
-	Name string `json:"name"`
-	Data string `json:"data"`
-}
-
-var logEvent LogPayload
 
 // readJSON tries to read the body of a request and converts it into JSON
 func (app *Config) readJSON(w http.ResponseWriter, r *http.Request, data any) error {
@@ -79,38 +70,4 @@ func (app *Config) errorJSON(w http.ResponseWriter, err error, status ...int) er
 	payload.Message = err.Error()
 
 	return app.writeJSON(w, statusCode, payload)
-}
-
-// Log the events and send to the logger service
-func LogEvent(l LogPayload) {
-
-	jsonData, _ := json.MarshalIndent(l, "", "\t")
-
-	logServiceURL := "http://logger-service/log"
-
-	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		log.Println("We have trouble in submit log event.")
-		log.Println(err)
-		return
-	}
-
-	request.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-
-	response, err := client.Do(request)
-	if err != nil {
-		log.Println("We have trouble in submit log event.")
-		log.Println(err)
-		return
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusAccepted {
-		log.Println("We have trouble in submit log event.")
-		log.Println(response.StatusCode)
-		log.Println(response.Body)
-		return
-	}
 }

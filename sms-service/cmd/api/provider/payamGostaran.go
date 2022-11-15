@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"sms-service/cmd/api/utils"
 	"sms-service/data"
@@ -21,6 +22,9 @@ func PGSendSms(messages []data.SendSMS) error {
 
 	res, err := utils.SendSMSSoap(ProviderConfig.Providers.PG.BaseUrl, "SendSms", ProviderConfig.Providers.PG.Username, ProviderConfig.Providers.PG.Password, destNumbersList, messages[0].SenderNumber, messages[0].Message, false, "", []int64{0})
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		log.Println(err.Error())
 		return err
 	}
@@ -28,10 +32,16 @@ func PGSendSms(messages []data.SendSMS) error {
 	// Check response status
 	sendSmsResult, err := utils.UnmarshalXML(res, "SendSmsResult")
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		return err
 	}
 	recids, err := utils.UnmarshalXML(res, "long")
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		return err
 	}
 	// check provider response and update sms status .
@@ -53,6 +63,9 @@ func PGSendSms(messages []data.SendSMS) error {
 			message.UpdatedAt = time.Now()
 			message.Update(message.ID, message)
 		}
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(sendSmsResult)
+		utils.LogEvent(logEvent)
 	}
 
 	return nil
@@ -76,6 +89,9 @@ func PGSendSMSArray(messages []data.SendSMS) error {
 
 	res, err := utils.SendSMSArraySoap(ProviderConfig.Providers.PG.BaseUrl, "CorrespondSMS", ProviderConfig.Providers.PG.Username, ProviderConfig.Providers.HamyarSMS.Password, destNumbersList, messages[0].SenderNumber, destMessagesList, false, "", []int64{0})
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		log.Println(err.Error())
 		return err
 	}
@@ -83,6 +99,9 @@ func PGSendSMSArray(messages []data.SendSMS) error {
 	// Check response status
 	sendSmsResult, err := utils.UnmarshalXML(res, "CorrespondSMSResult")
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		return err
 	}
 	var respnseJson responseJsonPayload

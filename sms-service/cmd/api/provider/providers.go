@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sms-service/cmd/api/utils"
 )
+
+var logEvent utils.LogPayload
 
 type Configuration struct {
 	Providers struct {
@@ -35,7 +38,7 @@ var ProviderConfig Configuration
 
 func init() {
 	// read config.json file
-	file, _ := os.Open("config.json")
+	file, _ := os.Open("/app/config.json")
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&ProviderConfig)

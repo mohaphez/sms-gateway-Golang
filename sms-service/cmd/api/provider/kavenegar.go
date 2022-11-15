@@ -47,6 +47,9 @@ func KVSendSms(messages []data.SendSMS) error {
 	// Check response status
 	err := json.Unmarshal([]byte(res), &responseJson)
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		panic(err)
 	}
 	if statusCode == http.StatusOK {
@@ -69,6 +72,9 @@ func KVSendSms(messages []data.SendSMS) error {
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
 		}
+		logEvent.Name = "warning"
+		logEvent.Data = "provider error :" + fmt.Sprint(responseJson)
+		utils.LogEvent(logEvent)
 	}
 	return nil
 }
@@ -96,6 +102,9 @@ func KVSendSMSArray(messages []data.SendSMS) error {
 
 	err := json.Unmarshal([]byte(res), &responseJson)
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		panic(err)
 	}
 	if statusCode == http.StatusOK {
@@ -118,6 +127,9 @@ func KVSendSMSArray(messages []data.SendSMS) error {
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
 		}
+		logEvent.Name = "warning"
+		logEvent.Data = "provider error :" + fmt.Sprint(responseJson)
+		utils.LogEvent(logEvent)
 	}
 	return nil
 }

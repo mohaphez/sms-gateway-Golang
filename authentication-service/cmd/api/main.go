@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-const servicePort = "8081"
+const servicePort = "80"
 
 type Config struct {
 	DB      *pgxpool.Pool
@@ -37,7 +37,8 @@ func main() {
 		Models:  data.New(conn),
 		Handler: handler.New(conn),
 	}
-
+	// Create init user
+	createInitUser(app)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", servicePort),
 		Handler: app.routes(),
@@ -70,5 +71,17 @@ func connectToDB() *pgxpool.Pool {
 		log.Println("Backing off for two seconds....")
 		time.Sleep(2 * time.Second)
 		continue
+	}
+}
+
+func createInitUser(app Config) {
+	var user data.User
+	user.UserName = os.Getenv("API_USERNAME")
+	user.Password = os.Getenv("API_PASSWORD")
+	user.Name = os.Getenv("API_USERNAME")
+	user.Email = "demo@example.com"
+	_, err := app.Models.User.Insert(user)
+	if err != nil {
+		log.Println(err)
 	}
 }

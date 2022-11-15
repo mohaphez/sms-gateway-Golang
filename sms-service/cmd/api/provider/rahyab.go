@@ -38,6 +38,10 @@ func RahyabGetToken() error {
 		RahyabCredential.Username = ProviderConfig.Providers.Rahyab.Username
 		RahyabCredential.Password = ProviderConfig.Providers.Rahyab.Password
 		RahyabCredential.Company = ProviderConfig.Providers.Rahyab.Company
+	} else {
+		logEvent.Name = "error"
+		logEvent.Data = "Provider Status code :" + fmt.Sprint(statusCode) + " Provider Error:" + fmt.Sprint(res)
+		utils.LogEvent(logEvent)
 	}
 	time.AfterFunc(24*time.Hour, func() { RahyabGetToken() })
 	return nil
@@ -89,6 +93,9 @@ func RahyabSendSms(messages []data.SendSMS) error {
 	if statusCode == http.StatusOK {
 		err := json.Unmarshal([]byte(res), &responseJson)
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			panic(err)
 		}
 
@@ -161,6 +168,9 @@ func RahyabSendSMSArray(messages []data.SendSMS) error {
 	if statusCode == http.StatusOK {
 		err := json.Unmarshal([]byte(res), &responseJson)
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			log.Println(err)
 			return nil
 		}

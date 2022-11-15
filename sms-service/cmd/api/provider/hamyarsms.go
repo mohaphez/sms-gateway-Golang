@@ -41,20 +41,32 @@ func HamyarSMSSendSoap(url string, method string, username string, password stri
 	req.Header.Set("Content-Type", "text/xml")
 	if err != nil {
 		//Handle Error
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		log.Println(err)
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		fmt.Println(err)
 		return []byte{52}, err
 	}
 	defer resp.Body.Close()
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		utils.LogEvent(logEvent)
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 		return []byte{0}, err
 	} else {
 		data, _ := ioutil.ReadAll(resp.Body)
+		logEvent.Name = "info"
+		logEvent.Data = fmt.Sprint(string(data))
+		utils.LogEvent(logEvent)
 		return data, nil
 	}
 }
@@ -66,21 +78,33 @@ func HamyarSMSSendSms(messages []data.SendSMS) error {
 		res, err := HamyarSMSSendSoap(ProviderConfig.Providers.HamyarSMS.BaseUrl, "SendSMS", ProviderConfig.Providers.HamyarSMS.Username, ProviderConfig.Providers.HamyarSMS.Password, []string{sms.Receptor}, messages[0].SenderNumber, messages[0].Message, false, "", []int64{0})
 		// Resend if request have connection error
 		if err != nil && res[0] == 52 {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			time.Sleep(5 * time.Second)
 			go HamyarSMSSendSms(messages)
 			return nil
 		}
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			log.Println(err.Error())
 			return err
 		}
 		// Check response status
 		sendSmsResult, err := utils.UnmarshalXML(res, "SendSMSResult")
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			return err
 		}
 		recids, err := utils.UnmarshalXML(res, "long")
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			return err
 		}
 		// check provider response and update sms status .
@@ -91,6 +115,8 @@ func HamyarSMSSendSms(messages []data.SendSMS) error {
 			sms.SendTime = time.Now()
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
+			logEvent.Name = "info"
+			logEvent.Data = fmt.Sprint(sendSmsResult)
 		} else if len(sendSmsResult) > 0 {
 			sms.Status = 11
 			sms.StatusText = utils.StatusText(int16(sms.Status))
@@ -98,7 +124,11 @@ func HamyarSMSSendSms(messages []data.SendSMS) error {
 			sms.SendTime = time.Now()
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
+			logEvent.Name = "warning"
+			logEvent.Data = "provider error :" + fmt.Sprint(sendSmsResult)
+			sms.Update(sms.ID, sms)
 		}
+		utils.LogEvent(logEvent)
 	}
 	return nil
 }
@@ -110,21 +140,33 @@ func HamyarSMSSendSmsArray(messages []data.SendSMS) error {
 		res, err := HamyarSMSSendSoap(ProviderConfig.Providers.HamyarSMS.BaseUrl, "SendSMS", ProviderConfig.Providers.HamyarSMS.Username, ProviderConfig.Providers.HamyarSMS.Password, []string{sms.Receptor}, messages[0].SenderNumber, sms.Message, false, "", []int64{0})
 		// Resend if request have connection error
 		if err != nil && res[0] == 52 {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			time.Sleep(5 * time.Second)
 			go HamyarSMSSendSmsArray(messages)
 			return nil
 		}
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			log.Println(err.Error())
 			return err
 		}
 		// Check response status
 		sendSmsResult, err := utils.UnmarshalXML(res, "SendSMSResult")
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			return err
 		}
 		recids, err := utils.UnmarshalXML(res, "long")
 		if err != nil {
+			logEvent.Name = "error"
+			logEvent.Data = fmt.Sprint(err)
+			utils.LogEvent(logEvent)
 			return err
 		}
 		// check provider response and update sms status .
@@ -135,6 +177,8 @@ func HamyarSMSSendSmsArray(messages []data.SendSMS) error {
 			sms.SendTime = time.Now()
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
+			logEvent.Name = "info"
+			logEvent.Data = fmt.Sprint(sendSmsResult)
 		} else if len(sendSmsResult) > 0 {
 			sms.Status = 11
 			sms.StatusText = utils.StatusText(int16(sms.Status))
@@ -142,7 +186,10 @@ func HamyarSMSSendSmsArray(messages []data.SendSMS) error {
 			sms.SendTime = time.Now()
 			sms.UpdatedAt = time.Now()
 			sms.Update(sms.ID, sms)
+			logEvent.Name = "warning"
+			logEvent.Data = "provider error :" + fmt.Sprint(sendSmsResult)
 		}
+		utils.LogEvent(logEvent)
 	}
 	return nil
 }

@@ -290,7 +290,7 @@ func SmsStatus(w http.ResponseWriter, r *http.Request) {
 
 	res := utils.JsonResponse{
 		Error:   false,
-		Message: "All Messages sent successfully !",
+		Message: "Messages fetched successfully !",
 		Data:    messages,
 	}
 
@@ -329,7 +329,7 @@ func SmsList(w http.ResponseWriter, r *http.Request) {
 
 	res := utils.JsonResponse{
 		Error:   false,
-		Message: "All Messages sent successfully !",
+		Message: "Messages fetched successfully !",
 		Data:    messages,
 	}
 

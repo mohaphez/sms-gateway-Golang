@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log-service/data"
 	"net/http"
 	"os"
-	"sms-service/cmd/api/handler"
-	"sms-service/data"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,18 +18,19 @@ const (
 	mongoURL    = "mongodb://mongo:27017"
 )
 
+var client *mongo.Client
+
 type Config struct {
-	Models  data.Models
-	Handler handler.Handler
+	Models data.Models
 }
 
 func main() {
-
-	// Connect to db .
-	conn, err := connectToDB()
+	// connect to mongo
+	mongoClient, err := connectToMongo()
 	if err != nil {
 		log.Panic(err)
 	}
+	client = mongoClient
 
 	// create a context in order to disconnect
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -38,31 +38,31 @@ func main() {
 
 	// close connection
 	defer func() {
-		if err = conn.Disconnect(ctx); err != nil {
+		if err = client.Disconnect(ctx); err != nil {
 			panic(err)
 		}
 	}()
 
 	app := Config{
-		Models:  data.New(conn),
-		Handler: handler.New(conn),
+		Models: data.New(client),
 	}
 
+	// start web server
+	log.Println("Starting service on port", servicePort)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", servicePort),
 		Handler: app.routes(),
 	}
 
-	log.Printf("The sms service runnig on port %s\n", servicePort)
-
 	err = server.ListenAndServe()
 	if err != nil {
-		log.Panic(err)
+		log.Panic()
 	}
+
 }
 
-func connectToDB() (*mongo.Client, error) {
-
+func connectToMongo() (*mongo.Client, error) {
+	// create connection options
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions.SetAuth(options.Credential{
 		Username: os.Getenv("MOGODB_USERNAME"),

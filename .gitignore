@@ -17,5 +17,6 @@
 authApp
 brokerApp
 smsApp
+loggerServiceApp
 project/db-data
 sms-service/cmd/api/config.json

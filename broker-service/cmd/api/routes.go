@@ -34,13 +34,16 @@ func (app *Config) routes() http.Handler {
 	mux.Group(func(mux chi.Router) {
 		mux.Use(jwtauth.Verifier(tokenAuth))
 		mux.Use(jwtauth.Authenticator)
-
+		mux.Post("/send-sms", app.SendSMS)
+		mux.Post("/send-sms-p2p", app.SendSMSArray)
+		mux.Post("/get-sms-status", app.SmsStatus)
+		mux.Post("/get-sms-list", app.SmsList)
 	})
 
 	// Public routes
 	mux.Group(func(mux chi.Router) {
 		mux.Get("/", app.Broker)
-		mux.Post("/getToken", app.getToken)
+		mux.Post("/getToken", app.GetToken)
 	})
 
 	return mux

@@ -29,6 +29,13 @@ type JsonResponse struct {
 	Data    any    `json:"data,omitempty"`
 }
 
+type LogPayload struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+
+var logEvent LogPayload
+
 // readJSON tries to read the body of a request and converts it into JSON
 func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1048576 // one megabyte
@@ -72,6 +79,40 @@ func WriteJSON(w http.ResponseWriter, status int, data any, headers ...http.Head
 	return nil
 }
 
+// Log the events and send to the logger service
+func LogEvent(l LogPayload) {
+
+	jsonData, _ := json.MarshalIndent(l, "", "\t")
+
+	logServiceURL := "http://logger-service/log"
+
+	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println("We have trouble in submit log event.")
+		log.Println(err)
+		return
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+	if err != nil {
+		log.Println("We have trouble in submit log event.")
+		log.Println(err)
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusAccepted {
+		log.Println("We have trouble in submit log event.")
+		log.Println(response.StatusCode)
+		log.Println(response.Body)
+		return
+	}
+}
+
 // errorJSON takes an error, and optionally a response status code, and generates and sends
 // a json error response
 func ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
@@ -108,6 +149,9 @@ func SendPostRequest(url string, data string, token string) (string, int) {
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		LogEvent(logEvent)
 		log.Println(err)
 		return "", 502
 	}
@@ -135,6 +179,9 @@ func SendPostFormRequest(apiurl string, data map[string]string, token string) (s
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		LogEvent(logEvent)
 		log.Println(err)
 		return "", 502
 	}
@@ -162,6 +209,9 @@ func SendGetRequest(url string, data map[string]string, token string) (string, i
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		LogEvent(logEvent)
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -184,6 +234,9 @@ func SendSMSSoap(url string, method string, username string, password string, to
 	response, err := http.Post(url, "text/xml; charset=utf-8", bytes.NewBuffer(dataAsByte))
 
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		LogEvent(logEvent)
 		log.Printf("The HTTP request failed with error %s\n", err)
 		return []byte{0}, err
 	} else {
@@ -206,6 +259,9 @@ func SendSMSArraySoap(url string, method string, username string, password strin
 	response, err := http.Post(url, "text/xml; charset=utf-8", bytes.NewBuffer(dataAsByte))
 
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		LogEvent(logEvent)
 		log.Printf("The HTTP request failed with error %s\n", err)
 		return []byte{0}, err
 	} else {
@@ -224,6 +280,9 @@ func UnmarshalXML(data []byte, xmlname string) ([]string, error) {
 	var n XMLNode
 	err := dec.Decode(&n)
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		LogEvent(logEvent)
 		log.Println(err)
 		return xmlContent, err
 	}

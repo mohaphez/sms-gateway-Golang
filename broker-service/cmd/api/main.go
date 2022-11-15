@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-const servicePort = "8080"
+const servicePort = "80"
 
 type Config struct{}
 
@@ -25,6 +25,9 @@ func main() {
 	err := server.ListenAndServe()
 
 	if err != nil {
+		logEvent.Name = "error"
+		logEvent.Data = fmt.Sprint(err)
+		LogEvent(logEvent)
 		log.Panic(err)
 	}
 }
