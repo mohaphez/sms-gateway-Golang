@@ -1,7 +1,7 @@
-# SMS-Gateway microservice app - GO
+# SMS-Gateway microservice app
 
-SMS gateway microservice application is a gateway for sending and managing SMS.
-This microservice will help you to send your SMS as quickly as possible with a single API without getting involved in different providers API methods.
+SMS gateway microservice application is a gateway for send and manag SMS.
+This microservice will help you to send your SMS as quick as possible with a single API without getting involved in different providers API methods.
 
 ## Components
 
@@ -11,6 +11,9 @@ This microservice will help you to send your SMS as quickly as possible with a s
 4. [logger](/logger-service) recording events and errors related to services.
 5. [sms](/sms-service) It connect to different provider and send SMS based on priority.
 
+Take a look at the components diagram that describes them and their interactions.
+
+![sms-gateway-diagram](https://user-images.githubusercontent.com/20874565/202277834-462358da-2143-47ea-8be5-789157d87886.png)
 
 ## Use cases
 
@@ -20,20 +23,24 @@ This microservice will help you to send your SMS as quickly as possible with a s
 - if you don't want to change the code of your software when transferring the SMS number to another service provider.
 - if sending speed is important to you
 
-
 ## How to start
 
 ```
 git clone https://github.com/mohaphez/sms-gateway-Golang.git
 ```
+
 ```
-cd sms-gateway-Golang/project 
+cd sms-gateway-Golang/project
 ```
-build and start up project . 
+
+build and startup project .
+
 ```
 make up_build
 ```
-stop and remove containers 
+
+stop and remove containers
+
 ```
 make down
 ```
