@@ -5,7 +5,7 @@ This microservice will help you to send your SMS as quick as possible with a sin
 
 ## Components
 
-1. [Frontend](/front-end) management panel to display and filter sent text messages and statuses, send quick text messages, view logs and events recorded in other services. (**It's incomplete and under construction**)
+1. [Frontend](/front-end) management panel to display and filter sent text messages and status, send quick text messages, view logs and events recorded in other services. (**It's incomplete and under construction**)
 2. [authentication](/authentication-service) managing users (crud), change passwords, authenticating and generate jwt tokens
 3. [broker](/broker-service) connect services to each other behind the scenes.
 4. [logger](/logger-service) recording events and errors related to services.
@@ -23,23 +23,41 @@ Take a look at the components diagram that describes them and their interactions
 - if you don't want to change the code of your software when transferring the SMS number to another service provider.
 - if sending speed is important to you
 
+
+## Which providers are available
+
+| provider | address |
+| --- | --- |
+| **rahyab** | [sms.rahyab.ir](http://sms.rahyab.ir) |
+| **rahyabPG** | [rahyabcp.ir](https://rahyabcp.ir)|
+| **kavenegar** | [kavenegar.com](http://kavenegar.com)|
+| **hamyarsms** | [hamyarsms.com](https://hamyarsms.com)|
+| **More...** | **Coming soon**|
+
 ## How to start
+
+**build and startup project .**
 
 ```
 git clone https://github.com/mohaphez/sms-gateway-Golang.git
 ```
 
+1. Go to the project folder
+
 ```
 cd sms-gateway-Golang/project
 ```
+2. Change .env Content for more security
 
-build and startup project .
+3. Fill sms-service/config.js parameters for which provider you want use. 
+
+4. Enter below command
 
 ```
 make up_build
 ```
 
-stop and remove containers
+**stop and remove containers**
 
 ```
 make down
