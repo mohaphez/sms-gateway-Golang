@@ -5,7 +5,7 @@ services:
     build: ./../broker-service
     restart: always
     ports:
-      - "80:80"
+      - "8000:80"
     deploy:
       mode: replicated
       replicas: 1
