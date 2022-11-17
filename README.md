@@ -41,16 +41,15 @@ Take a look at the components diagram that describes them and their interactions
 git clone https://github.com/mohaphez/sms-gateway-Golang.git
 ```
 
-2. Go to the project folder
+2. Change sms-gateway-Golang/project/.env content for more security
+
+3. Fill sms-gateway-Golang/sms-service/config.js parameters for which provider you want to use.
+
+4. Go to the project folder
 
 ```
 cd sms-gateway-Golang/project
 ```
-
-3. Change .env content for more security
-
-4. Fill sms-service/config.js parameters for which provider you want use.
-
 5. Enter below command
 
 ```
