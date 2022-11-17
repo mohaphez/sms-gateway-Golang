@@ -63,7 +63,7 @@ With the following code samples, you can connect to microservice API and use the
 - How to get authentication token
 
 ```
-URL : IP:8000/getToken  <!-- replace IP with your local or server ip/domain -->
+URL : IP:8000/getToken  [//]: # (replace IP with your local or server ip/domain)
 
 METHOD: POST
 
@@ -71,8 +71,8 @@ BODY : JSON/raw
 
 PARAMETERS :
   {
-    "username":"demo", <!-- string -->
-    "password":"demo"  <!-- string -->
+    "username":"demo", [//]: # (string)
+    "password":"demo"  [//]: # (string)
   }
 
 RESPONSE :
@@ -87,7 +87,7 @@ RESPONSE :
 - How to send single sms
 
 ```
-URL : IP:8000/send-sms  <!-- replace IP with your local or server ip/domain  -->
+URL : IP:8000/send-sms  [//]: # (replace IP with your local or server ip/domain )
 
 METHOD: POST
 
@@ -97,11 +97,11 @@ HEADER : Authorization: Bearer Token
 
 PARAMETERS :
   {
-    "message":"test",           <!-- string -->
-    "receptor":["09910000000"], <!-- array[string] -->
-    "sender":"rahyabPG",        <!-- string --> <!-- / According to the above table / rahyab|rahyabPG|kavenegar|hamyarsms | .. -->
-    "sender_number":"10001222", <!-- string -->
-    "localid":""                <!-- string --> <!-- optional -->
+    "message":"test",           [//]: # (string)
+    "receptor":["09910000000"], [//]: # (array[string])
+    "sender":"rahyabPG",        [//]: # (string) [//]: # (/ According to the above table / rahyab|rahyabPG|kavenegar|hamyarsms | ..)
+    "sender_number":"10001222", [//]: # (string)
+    "localid":""                [//]: # (string) [//]: # (optional)
   }
 
 RESPONSE :
@@ -129,7 +129,7 @@ RESPONSE :
 - How to send p2p sms
 
 ```
-URL : IP:8000/send-sms  <!-- replace IP with your local or server ip/domain  -->
+URL : IP:8000/send-sms  [//]: # (replace IP with your local or server ip/domain )
 
 METHOD: POST
 
@@ -139,11 +139,11 @@ HEADER : Authorization: Bearer Token
 
 PARAMETERS :
   {
-    "message":["num1","num2"], <!-- array[string] -->
-    "receptor":["09910000000","09910000001"], <!-- array[string] -->
-    "sender":"rahyabPG",      <!-- string --> <!-- / According to the above table / rahyab|rahyabPG|kavenegar|hamyarsms | .. -->
-    "sender_number":"10001222", <!-- string -->
-    "localid":[]                <!-- array[string] --> <!-- optional -->
+    "message":["num1","num2"], [//]: # (array[string])
+    "receptor":["09910000000","09910000001"], [//]: # (array[string])
+    "sender":"rahyabPG",      [//]: # (string) [//]: # (/ According to the above table / rahyab|rahyabPG|kavenegar|hamyarsms | ..)
+    "sender_number":"10001222", [//]: # (string)
+    "localid":[]                [//]: # (array[string]) [//]: # (optional)
   }
 
 RESPONSE :
@@ -183,7 +183,7 @@ RESPONSE :
 - How to get sms status
 
 ```
-URL : IP:8000/get-sms-status  <!-- replace IP with your local or server ip/domain  -->
+URL : IP:8000/get-sms-status  [//]: # (replace IP with your local or server ip/domain )
 
 METHOD: POST
 
@@ -193,7 +193,7 @@ HEADER : Authorization: Bearer Token
 
 PARAMETERS :
   {
-    "batchid":["b5a98eb2-a8c5-4877-899f-993b9fe5efbf"] <!-- array[string] -->
+    "batchid":["b5a98eb2-a8c5-4877-899f-993b9fe5efbf"] [//]: # (array[string])
   }
 
 RESPONSE :
@@ -225,7 +225,7 @@ RESPONSE :
 - How to get sms list with filter
 
 ```
-URL : IP:8000/get-sms-list  <!-- replace IP with your local or server ip/domain  -->
+URL : IP:8000/get-sms-list  [//]: # (replace IP with your local or server ip/domain )
 
 METHOD: POST
 
@@ -235,13 +235,13 @@ HEADER : Authorization: Bearer Token
 
 PARAMETERS :
   {
-	"message":"",      <!-- string -->
-	"receptor":[],     <!-- array[string] -->
-	"sender":[],       <!-- array[string] -->
-	"senderNumber":[], <!-- array[string] -->
-	"offset":0,        <!-- number -->
-	"limit":10,        <!-- number -->
-	"sort":""          <!-- string -->  <!-- "asc" | "desc" -->
+	"message":"",      [//]: # (string)
+	"receptor":[],     [//]: # (array[string])
+	"sender":[],       [//]: # (array[string])
+	"senderNumber":[], [//]: # (array[string])
+	"offset":0,        [//]: # (number)
+	"limit":10,        [//]: # (number)
+	"sort":""          [//]: # (string)  [//]: # ("asc" | "desc")
    }
 
 
@@ -254,7 +254,7 @@ RESPONSE :
             "batchid": "b5a98eb2-a8c5-4877-899f-993b9fe5efbf",
             "created_at": "2022-11-17T09:38:02.325Z",
             "date": 1668677882,
-            "error": "0",     <!-- This field appears when the provider returns an error code when sending a message, you should find its meaning from the provider own document.-->
+            "error": "0",     [//]: # (This field appears when the provider returns an error code when sending a message, you should find its meaning from the provider own document.)
             "lang": "en",
             "message": "test",
             "receive_time": "0001-01-01T00:00:00Z",
